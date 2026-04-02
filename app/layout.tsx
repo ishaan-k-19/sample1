@@ -72,6 +72,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://cdn.shopify.com" />
         <link rel="dns-prefetch" href="https://cdn.shopify.com" />
+        <link rel="preload" href="/realistic_3d_beverage_can.glb" as="fetch" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.gstatic.com" />
       </head>
       <body className="font-body">
         <CartProvider>

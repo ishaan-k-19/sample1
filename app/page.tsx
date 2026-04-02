@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import dynamic from 'next/dynamic'
 import Navigation from '../src/sections/Navigation'
 import Hero from '../src/sections/Hero'
 import ScrollShowcase from '../src/sections/ScrollShowcase'
@@ -12,7 +13,8 @@ import Packs from '../src/sections/Packs'
 import CTA from '../src/sections/CTA'
 import FAQ from '../src/sections/FAQ'
 import Footer from '../src/sections/Footer'
-import PersistentCan from '../src/components/PersistentCan'
+
+const PersistentCan = dynamic(() => import('../src/components/PersistentCan'), { ssr: false })
 export default function Home() {
   const mainRef = useRef<HTMLDivElement>(null)
 

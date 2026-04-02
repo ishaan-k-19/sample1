@@ -161,7 +161,7 @@ export const canAnimState = { levitate: 1, zoom: 1, offsetY: 0 }
 
 const CanModel = () => {
   const groupRef = useRef<THREE.Group>(null)
-  const { scene } = useGLTF(CAN_MODEL_PATH)
+  const { scene } = useGLTF(CAN_MODEL_PATH, 'https://www.gstatic.com/draco/versioned/decoders/1.5.7/')
   const labelTexture = useLoader(THREE.TextureLoader, LABEL_IMAGE)
 
   const { clonedScene, autoScale } = useMemo(() => {
@@ -238,7 +238,7 @@ const CanModel = () => {
   )
 }
 
-useGLTF.preload(CAN_MODEL_PATH)
+useGLTF.preload(CAN_MODEL_PATH, 'https://www.gstatic.com/draco/versioned/decoders/1.5.7/')
 
 const PersistentCan = () => {
   const containerRef = useRef<HTMLDivElement>(null)
