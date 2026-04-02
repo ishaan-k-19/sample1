@@ -166,7 +166,7 @@ const ScrollShowcase = () => {
 
       const mobile = window.innerWidth < 768
       if (i + 1 === 1) {
-        tl.to(canAnimState, { zoom: mobile ? 2.6 : 2.4, offsetY: mobile ? -5 : -4.5, duration: 0.7, ease: 'power2.inOut' }, t + 0.25)
+        tl.to(canAnimState, { zoom: mobile ? 2.6 : 2.4, offsetY: mobile ? -5 : -5, duration: 0.7, ease: 'power2.inOut' }, t + 0.25)
       } else if (i + 1 === 2) {
         tl.to(canAnimState, { levitate: 1, zoom: 1, offsetY: 0, duration: 0.55, ease: 'power2.out' }, t + 0.1)
       }
