@@ -97,7 +97,7 @@ const Products = () => {
         end: `+=${window.innerHeight * numTransitions * 1.2}`,
         pin: true,
         pinSpacing: true,
-        scrub: 1.2,
+        scrub: 0.5,
         snap: {
           snapTo: (progress, self) => {
             const direction = self?.direction ?? 0

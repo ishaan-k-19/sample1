@@ -68,14 +68,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${anton.variable}`}>
+    <html lang="en" className={`${inter.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://cdn.shopify.com" />
         <link rel="dns-prefetch" href="https://cdn.shopify.com" />
         <link rel="preload" href="/realistic_3d_beverage_can.glb" as="fetch" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.gstatic.com" />
       </head>
-      <body className="font-body">
+      <body className="font-body" suppressHydrationWarning>
         <CartProvider>
           {children}
           <CartDrawer />

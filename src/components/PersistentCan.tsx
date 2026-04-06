@@ -8,14 +8,6 @@ import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { useGLTF, Center } from '@react-three/drei'
 import * as THREE from 'three'
 
-// Suppress THREE.Clock deprecation warning from @react-three/fiber internals
-// R3F hasn't migrated to THREE.Timer yet — harmless, can't fix from our side
-const _origWarn = console.warn
-console.warn = (...args: unknown[]) => {
-  if (typeof args[0] === 'string' && args[0].includes('THREE.Clock')) return
-  _origWarn.apply(console, args)
-}
-
 gsap.registerPlugin(ScrollTrigger)
 
 const CAN_MODEL_PATH = '/realistic_3d_beverage_can.glb'
@@ -232,7 +224,6 @@ const CanModel = () => {
       groupRef.current.position.y = Math.sin(t * 1.2) * 0.06 * lev + canAnimState.offsetY
       groupRef.current.rotation.y = Math.sin(t * 0.3) * 0.08 * lev + canSpinState.spinY
     }
-    // Only update scale when zoom actually changes
     const zoom = canAnimState.zoom
     if (scaleGroupRef.current && zoom !== prevZoom.current) {
       const s = autoScale * zoom
@@ -311,7 +302,7 @@ const PersistentCan = () => {
           trigger: showcase,
           start: 'top top',
           end: `+=${window.innerHeight}`,
-          scrub: 1.4,
+          scrub: 0.5,
         },
       }).to(slideOffsetRef.current, { y: 0, duration: 0.5, ease: 'power2.inOut' })
     }
@@ -344,7 +335,7 @@ const PersistentCan = () => {
         trigger: hero,
         start: 'top top',
         end: `+=${totalScroll}`,
-        scrub: 0.8,
+        scrub: 0.4,
       },
     })
 
@@ -361,7 +352,7 @@ const PersistentCan = () => {
         trigger: hero,
         start: 'top top',
         end: 'bottom top',
-        scrub: 0.8,
+        scrub: 0.4,
       },
     }).to(canSpinState, { spinY: slide1Offset, ease: 'power1.out' })
 
@@ -404,11 +395,11 @@ const PersistentCan = () => {
             }}
           />
 
-          <div className="relative z-10 w-[85vw] h-[90vw] md:w-[450px] md:h-[650px]">
+          <div className="relative z-10 w-[50vw] h-[40dvh] md:w-[450px] md:h-[650px]">
             <div className="w-full h-full">
               <Canvas
                 camera={{ position: [1, 0, 7], fov: 45 }}
-                dpr={[1, 1.5]}
+                dpr={1}
                 gl={{
                   alpha: true,
                   antialias: false,

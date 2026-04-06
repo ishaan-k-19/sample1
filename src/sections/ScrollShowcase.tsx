@@ -94,7 +94,7 @@ const ScrollShowcase = () => {
         end: `+=${window.innerHeight * TRANSITIONS}`,
         pin: true,
         pinSpacing: true,
-        scrub: 0.6,
+        scrub: 0.3,
         snap: {
           snapTo: (progress, self) => {
             const direction = self?.direction ?? 0
