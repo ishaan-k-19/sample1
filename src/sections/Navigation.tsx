@@ -46,7 +46,6 @@ const Navigation = () => {
           `}
         >
           <Link href="/" className="shrink-0" aria-label="KLIQ Energy home">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/Website Logos/BLACK(1).png"
               alt="KLIQ Energy"
@@ -115,7 +114,6 @@ const Navigation = () => {
         aria-hidden={!isMenuOpen}
       >
         <Link href="/" onClick={closeMenu} className="mb-10" aria-label="KLIQ Energy home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/Website Logos/WHITE.png"
             alt="KLIQ Energy"

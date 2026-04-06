@@ -83,7 +83,6 @@ const Footer = () => {
               }}
             >
               <Link href="/" className="flex items-center mb-6" aria-label="KLIQ Energy home">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/Website Logos/WHITE.png"
                   alt="KLIQ Energy"
