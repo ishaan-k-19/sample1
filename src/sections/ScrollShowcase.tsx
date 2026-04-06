@@ -208,7 +208,7 @@ const ScrollShowcase = () => {
         <div
           key={i}
           ref={(el) => { slideRefs.current[i] = el }}
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 pointer-events-none will-change-[transform,opacity]"
           style={{ zIndex: i + 1 }}
         >
           {/* Text block — full width on mobile, right half on desktop */}

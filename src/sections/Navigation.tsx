@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X, ShoppingCart } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
@@ -47,13 +46,11 @@ const Navigation = () => {
           `}
         >
           <Link href="/" className="shrink-0" aria-label="KLIQ Energy home">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/Website Logos/BLACK(1).png"
               alt="KLIQ Energy"
-              width={80}
-              height={28}
               className="h-7 w-auto"
-              priority
             />
           </Link>
 
@@ -118,11 +115,10 @@ const Navigation = () => {
         aria-hidden={!isMenuOpen}
       >
         <Link href="/" onClick={closeMenu} className="mb-10" aria-label="KLIQ Energy home">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/Website Logos/WHITE.png"
             alt="KLIQ Energy"
-            width={100}
-            height={40}
             className="h-10 w-auto"
           />
         </Link>

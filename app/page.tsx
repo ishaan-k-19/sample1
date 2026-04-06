@@ -2,7 +2,11 @@
 
 import { useRef } from 'react'
 import dynamic from 'next/dynamic'
+import gsap from 'gsap'
 import Navigation from '../src/sections/Navigation'
+
+// Global GSAP perf config — runs once at module load
+gsap.ticker.lagSmoothing(500, 33) // tolerate up to 500ms lag, cap at ~30fps floor
 import Hero from '../src/sections/Hero'
 import ScrollShowcase from '../src/sections/ScrollShowcase'
 import About from '../src/sections/About'

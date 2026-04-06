@@ -5,8 +5,16 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import { useGLTF, Center, Environment } from '@react-three/drei'
+import { useGLTF, Center } from '@react-three/drei'
 import * as THREE from 'three'
+
+// Suppress THREE.Clock deprecation warning from @react-three/fiber internals
+// R3F hasn't migrated to THREE.Timer yet — harmless, can't fix from our side
+const _origWarn = console.warn
+console.warn = (...args: unknown[]) => {
+  if (typeof args[0] === 'string' && args[0].includes('THREE.Clock')) return
+  _origWarn.apply(console, args)
+}
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -175,7 +183,7 @@ const CanModel = () => {
     tex.minFilter = THREE.LinearMipmapLinearFilter
     tex.magFilter = THREE.LinearFilter
     tex.generateMipmaps = true
-    tex.anisotropy = 16
+    tex.anisotropy = 4
     tex.needsUpdate = true
 
     const bodyMat = new THREE.MeshPhysicalMaterial({
@@ -215,15 +223,21 @@ const CanModel = () => {
 
   const scaleGroupRef = useRef<THREE.Group>(null)
 
+  const prevZoom = useRef(canAnimState.zoom)
+
   useFrame((state) => {
     if (groupRef.current) {
       const t = state.clock.getElapsedTime()
-      groupRef.current.position.y = Math.sin(t * 1.2) * 0.06 * canAnimState.levitate + canAnimState.offsetY
-      groupRef.current.rotation.y = Math.sin(t * 0.3) * 0.08 * canAnimState.levitate + canSpinState.spinY
+      const lev = canAnimState.levitate
+      groupRef.current.position.y = Math.sin(t * 1.2) * 0.06 * lev + canAnimState.offsetY
+      groupRef.current.rotation.y = Math.sin(t * 0.3) * 0.08 * lev + canSpinState.spinY
     }
-    if (scaleGroupRef.current) {
-      const s = autoScale * canAnimState.zoom
+    // Only update scale when zoom actually changes
+    const zoom = canAnimState.zoom
+    if (scaleGroupRef.current && zoom !== prevZoom.current) {
+      const s = autoScale * zoom
       scaleGroupRef.current.scale.set(s * CAN_SCALE_XZ, s * CAN_SCALE_Y, s * CAN_SCALE_XZ)
+      prevZoom.current = zoom
     }
   })
 
@@ -323,7 +337,7 @@ const PersistentCan = () => {
 
     const startX = mobile ? 0 : 200
     const holdX = mobile ? 0 : -500
-    gsap.set(canTransform, { x: startX, y: 0 })
+    gsap.set(canTransform, { x: startX, y: 0, xPercent: -50, yPercent: -50 })
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -379,41 +393,39 @@ const PersistentCan = () => {
       <div
         ref={canTransformRef}
         className="absolute top-[26%] md:top-1/2 left-1/2 md:left-[63%] will-change-transform"
-        style={{ transform: 'translate(-50%, -50%)' }}
       >
         <div ref={slideOffsetRef}>
           <div
             ref={glowRef}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[144px] sm:w-[400px] h-[144px] sm:h-[400px] rounded-full blur-[32px] sm:blur-[100px]"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] md:w-[400px] md:h-[400px] rounded-full blur-[32px] md:blur-[100px]"
             style={{
               background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(100,100,100,0.15) 50%, transparent 70%)',
               opacity: 0,
             }}
           />
 
-          <div className="relative z-10 w-[450px] h-[500px] md:h-[650px]">
+          <div className="relative z-10 w-[85vw] h-[90vw] md:w-[450px] md:h-[650px]">
             <div className="w-full h-full">
               <Canvas
                 camera={{ position: [1, 0, 7], fov: 45 }}
-                dpr={[1, 2]}
+                dpr={[1, 1.5]}
                 gl={{
                   alpha: true,
-                  antialias: true,
+                  antialias: false,
                   powerPreference: 'high-performance',
                   stencil: false,
-                  toneMapping: THREE.NoToneMapping,
                   depth: true,
+                  toneMapping: THREE.NoToneMapping,
                 }}
+                frameloop="always"
+                performance={{ min: 0.5 }}
                 style={{ background: 'transparent' }}
               >
                 <Suspense fallback={null}>
-                  <ambientLight intensity={1.4} />
-                  <directionalLight position={[5, 4, 2]} intensity={0.6} color="#fff5e6" />
-                  <directionalLight position={[-7, 1, -1]} intensity={0.9} color="#ffffff" />
-                  <directionalLight position={[7, 1, -1]} intensity={0.9} color="#ffffff" />
-                  <directionalLight position={[0, -3, 2]} intensity={0.25} color="#e0e8ff" />
-                  <directionalLight position={[0, 6, -1]} intensity={0.35} color="#ffffff" />
-                  <Environment preset="studio" background={false} environmentIntensity={0.2} />
+                  <ambientLight intensity={1.6} />
+                  <directionalLight position={[5, 4, 2]} intensity={0.8} color="#fff5e6" />
+                  <directionalLight position={[-7, 1, -1]} intensity={1.0} color="#ffffff" />
+                  <directionalLight position={[0, -3, 2]} intensity={0.3} color="#e0e8ff" />
                   <CanModel />
                 </Suspense>
               </Canvas>

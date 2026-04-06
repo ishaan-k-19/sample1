@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+
 import { Instagram, Twitter, Youtube, Facebook, ArrowUp } from 'lucide-react'
 
 const footerLinks = {
@@ -83,11 +83,10 @@ const Footer = () => {
               }}
             >
               <Link href="/" className="flex items-center mb-6" aria-label="KLIQ Energy home">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src="/Website Logos/WHITE.png"
                   alt="KLIQ Energy"
-                  width={100}
-                  height={40}
                   className="h-8 sm:h-10 w-auto"
                 />
               </Link>

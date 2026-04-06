@@ -123,7 +123,7 @@ const Products = () => {
           const segmentSize = 1 / numTransitions
 
           if (progressRef.current) {
-            progressRef.current.style.transform = `scaleY(${progress})`
+            gsap.set(progressRef.current, { scaleY: progress })
           }
 
           const currentSlideIndex = Math.min(
@@ -131,52 +131,56 @@ const Products = () => {
             totalSlides - 1
           )
 
-          for (let index = 0; index < totalSlides; index++) {
+          for (let index = 1; index < totalSlides; index++) {
             const slide = slides[index]
-            if (index === 0) continue
-
             const revealStart = (index - 1) * segmentSize
             const revealEnd = index * segmentSize
 
+            let clipPath: string
             if (progress >= revealEnd) {
-              slide.style.clipPath = 'polygon(0% -40%, 50% 0%, 100% -40%, 100% 100%, 0% 100%)'
+              clipPath = 'polygon(0% -40%, 50% 0%, 100% -40%, 100% 100%, 0% 100%)'
             } else if (progress > revealStart) {
               const t = (progress - revealStart) / segmentSize
               const sideY = 100 - t * 140
-              const tipY = sideY + 40
-              slide.style.clipPath = `polygon(0% ${sideY}%, 50% ${Math.min(tipY, 100)}%, 100% ${sideY}%, 100% 100%, 0% 100%)`
+              const tipY = Math.min(sideY + 40, 100)
+              clipPath = `polygon(0% ${sideY}%, 50% ${tipY}%, 100% ${sideY}%, 100% 100%, 0% 100%)`
             } else {
-              slide.style.clipPath = 'polygon(0% 100%, 50% 100%, 100% 100%, 100% 100%, 0% 100%)'
+              clipPath = 'polygon(0% 100%, 50% 100%, 100% 100%, 100% 100%, 0% 100%)'
             }
+            gsap.set(slide, { clipPath })
           }
 
           if (currentSlideIndex !== lastActiveSlide) {
-            for (let index = 0; index < totalSlides; index++) {
-              const content = slideContent[index]
-              const image = slideImages[index]
-              const isActive = index === currentSlideIndex
+            // Only animate the outgoing and incoming slides, not all
+            const outgoing = lastActiveSlide
+            const incoming = currentSlideIndex
 
-              if (content) {
-                gsap.to(content, {
-                  opacity: isActive ? 1 : 0,
-                  y: isActive ? 0 : 30,
-                  scale: isActive ? 1 : 0.97,
-                  duration: 0.5,
-                  ease: 'power2.out',
-                  overwrite: true,
-                })
-              }
-
-              if (image) {
-                gsap.to(image, {
-                  scale: isActive ? 1 : 0.9,
-                  y: isActive ? 0 : 40,
-                  duration: 0.5,
-                  ease: 'power2.out',
-                  overwrite: true,
-                })
-              }
+            if (slideContent[outgoing]) {
+              gsap.to(slideContent[outgoing], {
+                opacity: 0, y: 30, scale: 0.97,
+                duration: 0.4, ease: 'power2.out', overwrite: true,
+              })
             }
+            if (slideImages[outgoing]) {
+              gsap.to(slideImages[outgoing], {
+                scale: 0.9, y: 40,
+                duration: 0.4, ease: 'power2.out', overwrite: true,
+              })
+            }
+
+            if (slideContent[incoming]) {
+              gsap.to(slideContent[incoming], {
+                opacity: 1, y: 0, scale: 1,
+                duration: 0.4, ease: 'power2.out', overwrite: true,
+              })
+            }
+            if (slideImages[incoming]) {
+              gsap.to(slideImages[incoming], {
+                scale: 1, y: 0,
+                duration: 0.4, ease: 'power2.out', overwrite: true,
+              })
+            }
+
             lastActiveSlide = currentSlideIndex
           }
         },
@@ -205,6 +209,7 @@ const Products = () => {
               zIndex: i + 1,
               backgroundColor: product.contentBg,
               clipPath: isFirst ? 'polygon(0% -40%, 50% 0%, 100% -40%, 100% 100%, 0% 100%)' : 'polygon(0% 100%, 50% 100%, 100% 100%, 100% 100%, 0% 100%)',
+              willChange: 'clip-path',
             }}
           >
             {/* Left column — content */}
