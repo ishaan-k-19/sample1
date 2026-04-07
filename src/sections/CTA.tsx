@@ -44,8 +44,8 @@ const CTA = () => {
     >
       <div className="relative border-b border-white/[0.06]">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute top-0 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full bg-kliq-vermilion/10 blur-[80px] sm:blur-[120px]" />
-          <div className="absolute bottom-0 right-1/4 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] rounded-full bg-kliq-vermilion/6 blur-[60px] sm:blur-[100px]" />
+          <div className="absolute top-0 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full bg-kliq-vermilion/10 blur-[30px] sm:blur-[120px]" />
+          <div className="absolute bottom-0 right-1/4 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] rounded-full bg-kliq-vermilion/6 blur-[25px] sm:blur-[100px]" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 grid lg:grid-cols-2 gap-10 sm:gap-16 items-center">

@@ -126,6 +126,10 @@ module.exports = {
           "80%":  { opacity: "1" },
           "100%": { top: "100%", opacity: "0" },
         },
+        "levitate": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -139,6 +143,7 @@ module.exports = {
         "letter-reveal": "letter-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
         "orbit": "orbit 60s linear infinite",
         "scroll-line": "scroll-line 1.6s cubic-bezier(0.4,0,0.6,1) infinite",
+        "levitate": "levitate 3s ease-in-out infinite",
       },
     },
   },

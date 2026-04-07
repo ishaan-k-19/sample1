@@ -4,24 +4,29 @@ import { useRef, useEffect, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import { Play, ChevronRight } from 'lucide-react'
 import gsap from 'gsap'
+import Image from 'next/image'
 
-function seededRandom(seed: number) {
-  const x = Math.sin(seed) * 10000
-  return x - Math.floor(x)
-}
-
-const particleData = Array.from({ length: 12 }, (_, i) => ({
-  left:     parseFloat((seededRandom(i * 4 + 1) * 100).toFixed(3)),
-  top:      parseFloat((seededRandom(i * 4 + 2) * 100).toFixed(3)),
-  duration: parseFloat((6 + seededRandom(i * 4 + 3) * 6).toFixed(3)),
-  delay:    parseFloat((seededRandom(i * 4 + 4) * 4).toFixed(3)),
-}))
+const particleData = [
+  { left: 70.985, top: 97.427, duration: 7.2, delay: 3.9 },
+  { left: 75.725, top: 84.502, duration: 11.196, delay: 2.33 },
+  { left: 18.485, top: 78.889, duration: 6.588, delay: 1.083 },
+  { left: 67.037, top: 7.356, duration: 11.27, delay: 3.867 },
+  { left: 2.508, top: 12.753, duration: 10.633, delay: 1.81 },
+  { left: 55.639, top: 48.691, duration: 10.776, delay: 0.866 },
+  { left: 48.25, top: 58.45, duration: 10.556, delay: 0.232 },
+  { left: 66.116, top: 68.376, duration: 9.741, delay: 1.067 },
+  { left: 11.86, top: 82.686, duration: 7.04, delay: 0.846 },
+  { left: 61.867, top: 68.579, duration: 11.723, delay: 0.526 },
+  { left: 77.331, top: 78.452, duration: 7.515, delay: 0.077 },
+  { left: 3.525, top: 88.348, duration: 10.387, delay: 1.814 },
+]
 
 const Hero = () => {
   const heroRef    = useRef<HTMLDivElement>(null)
   const subtitleRef = useRef<HTMLParagraphElement>(null)
   const ctasRef    = useRef<HTMLDivElement>(null)
   const scrollHintRef = useRef<HTMLDivElement>(null)
+  const mobileCanRef = useRef<HTMLDivElement>(null)
 
   const [lettersReady, setLettersReady] = useState(false)
   useEffect(() => {
@@ -57,6 +62,14 @@ const Hero = () => {
       { opacity: 0 },
       { opacity: 1, duration: 0.6, ease: 'none', delay: 2.0 },
     )
+
+    // Mobile can entrance
+    if (mobileCanRef.current) {
+      gsap.fromTo(mobileCanRef.current,
+        { y: 80, opacity: 0, scale: 0.8 },
+        { y: 0, opacity: 1, scale: 1, duration: 1.1, ease: 'power3.out', delay: 0.4 },
+      )
+    }
   }, { scope: heroRef })
 
   const titleWords = ['PURE', 'PROTEIN', 'POWER']
@@ -113,6 +126,23 @@ const Hero = () => {
             />
           ))}
         </div>
+      </div>
+
+      {/* Mobile can image — scrolls with hero naturally */}
+      <div
+        ref={mobileCanRef}
+        className="md:hidden absolute top-[15vh] left-[53%] -translate-x-1/2 z-[15] pointer-events-none"
+        style={{ opacity: 0 }}
+        aria-hidden="true"
+      >
+        <Image
+          src="/full-can.png"
+          alt=""
+          width={284}
+          height={756}
+          className="h-[35vh] w-auto object-contain animate-levitate"
+          priority
+        />
       </div>
 
       {/* Content */}

@@ -23,6 +23,7 @@ const About = () => {
     const section = sectionRef.current
     if (!section) return
 
+    const mobile = window.innerWidth < 768
     const st = { trigger: section, start: 'top 75%' }
 
     gsap.fromTo('.ab-label',
@@ -31,8 +32,8 @@ const About = () => {
     )
 
     gsap.fromTo('.ab-heading',
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.1, scrollTrigger: st },
+      { opacity: 0, y: mobile ? 30 : 50 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.1, scrollTrigger: st, force3D: true },
     )
 
     gsap.fromTo('.ab-rule',
@@ -41,27 +42,27 @@ const About = () => {
     )
 
     gsap.fromTo('.ab-body',
-      { opacity: 0, x: -30 },
-      { opacity: 1, x: 0, duration: 0.75, ease: 'power2.out', delay: 0.35, scrollTrigger: st },
+      { opacity: 0, x: mobile ? 0 : -30, y: mobile ? 20 : 0 },
+      { opacity: 1, x: 0, y: 0, duration: 0.75, ease: 'power2.out', delay: 0.35, scrollTrigger: st, force3D: true },
     )
 
     gsap.fromTo('.ab-pill',
-      { opacity: 0, y: 16, scale: 0.9 },
+      { opacity: 0, y: 16 },
       {
-        opacity: 1, y: 0, scale: 1,
-        duration: 0.5, ease: 'back.out(1.4)',
-        stagger: 0.07, delay: 0.55,
-        scrollTrigger: st,
+        opacity: 1, y: 0,
+        duration: 0.5, ease: mobile ? 'power2.out' : 'back.out(1.4)',
+        stagger: mobile ? 0 : 0.07, delay: 0.55,
+        scrollTrigger: st, force3D: true,
       },
     )
 
     gsap.fromTo('.ab-stat',
-      { opacity: 0, y: 36, scale: 0.92 },
+      { opacity: 0, y: mobile ? 20 : 36 },
       {
-        opacity: 1, y: 0, scale: 1,
+        opacity: 1, y: 0,
         duration: 0.6, ease: 'power3.out',
-        stagger: 0.09, delay: 0.45,
-        scrollTrigger: st,
+        stagger: mobile ? 0 : 0.09, delay: 0.45,
+        scrollTrigger: st, force3D: true,
       },
     )
 
@@ -89,8 +90,8 @@ const About = () => {
         />
       </div>
 
-      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-kliq-vermilion/8 blur-[80px] pointer-events-none" aria-hidden="true" />
-      <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-kliq-vermilion/6 blur-[60px] pointer-events-none" aria-hidden="true" />
+      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-kliq-vermilion/8 blur-[30px] md:blur-[80px] pointer-events-none" aria-hidden="true" />
+      <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-kliq-vermilion/6 blur-[25px] md:blur-[60px] pointer-events-none" aria-hidden="true" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24 flex flex-col justify-center min-h-[100dvh]">
         <div className="ab-label opacity-0 mb-1">
@@ -132,7 +133,7 @@ const About = () => {
 
           <div>
             <div className="relative">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-kliq-vermilion/8 rounded-full blur-[60px] pointer-events-none" aria-hidden="true" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-kliq-vermilion/8 rounded-full blur-[25px] md:blur-[60px] pointer-events-none" aria-hidden="true" />
               <div className="relative grid grid-cols-2 gap-3 sm:gap-4">
                 {stats.map((stat, i) => (
                   <div

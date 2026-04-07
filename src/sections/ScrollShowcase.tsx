@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -15,6 +16,9 @@ interface StorySlide {
   highlight: string
   description: string
   tags: string[]
+  mobileImage: string
+  mobileImageW: number
+  mobileImageH: number
 }
 
 const storySlides: StorySlide[] = [
@@ -25,6 +29,9 @@ const storySlides: StorySlide[] = [
     highlight: 'PROTEIN',
     description: '20 grams of high-quality protein in every 355ml can. No added caffeine — just clean, sustained power from real nutrition.',
     tags: ['20g Protein', 'No Caffeine'],
+    mobileImage: '/20g.png',
+    mobileImageW: 284,
+    mobileImageH: 452,
   },
   {
     number: '02',
@@ -33,6 +40,9 @@ const storySlides: StorySlide[] = [
     highlight: 'SUGAR',
     description: 'Zero sugar, zero carbs, zero fats. We engineered the taste without compromise — bold, refreshing, guilt-free.',
     tags: ['0 Sugar', '0 Carbs', '0 Fats'],
+    mobileImage: '/label.png',
+    mobileImageW: 650,
+    mobileImageH: 456,
   },
   {
     number: '03',
@@ -41,6 +51,9 @@ const storySlides: StorySlide[] = [
     highlight: 'YOUR EDGE',
     description: 'Not just energy. Not just protein. A performance lifestyle beverage. From the gym to the grind — KLIQ delivers.',
     tags: ['5 Flavors', 'Clean Formula', 'Performance'],
+    mobileImage: '/full-can.png',
+    mobileImageW: 284,
+    mobileImageH: 756,
   },
 ]
 
@@ -85,7 +98,7 @@ const ScrollShowcase = () => {
 
     gsap.set(canAnimState, { levitate: 1, zoom: 1, offsetY: 0 })
 
-    let currentSnap = 0
+    const mobile = window.innerWidth < 768
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -94,25 +107,12 @@ const ScrollShowcase = () => {
         end: `+=${window.innerHeight * TRANSITIONS}`,
         pin: true,
         pinSpacing: true,
-        scrub: 0.3,
+        anticipatePin: 1,
+        scrub: mobile ? 0.15 : 0.3,
         snap: {
-          snapTo: (progress, self) => {
-            const direction = self?.direction ?? 0
-            const step = 1 / TRANSITIONS
-            const normalized = progress / step
-
-            if (direction >= 1) {
-              const next = Math.min(currentSnap + 1, TRANSITIONS)
-              if (normalized >= currentSnap + 0.2) currentSnap = next
-            } else if (direction <= -1) {
-              const prev = Math.max(currentSnap - 1, 0)
-              if (normalized <= currentSnap - 0.2) currentSnap = prev
-            }
-
-            return Math.max(0, Math.min(1, currentSnap * step))
-          },
+          snapTo: 1 / TRANSITIONS,
           inertia: false,
-          duration: { min: 0.4, max: 0.7 },
+          duration: { min: 0.3, max: 0.6 },
           delay: 0.05,
           ease: 'power2.inOut',
         },
@@ -140,38 +140,61 @@ const ScrollShowcase = () => {
       const oldLine  = old.querySelector<HTMLElement>('.sl-line')
       const nextLine = next.querySelector<HTMLElement>('.sl-line')
 
-      tl.to(oldEls, {
-        autoAlpha: 0, y: -35,
-        duration: 0.42, ease: 'power2.in', stagger: 0.04,
-      }, t)
-      if (oldLine) tl.to(oldLine, { autoAlpha: 0, scaleX: 0, duration: 0.3, ease: 'power2.in' }, t)
-      tl.to(old, { autoAlpha: 0, duration: 0.15, ease: 'none' }, t + 0.4)
+      // Mobile: batch fade (no stagger), skip scaleX line anim
+      if (mobile) {
+        tl.to(oldEls, {
+          autoAlpha: 0, y: -25,
+          duration: 0.35, ease: 'power2.in', force3D: true,
+        }, t)
+        if (oldLine) tl.to(oldLine, { autoAlpha: 0, duration: 0.2 }, t)
+        tl.to(old, { autoAlpha: 0, duration: 0.1, ease: 'none' }, t + 0.35)
 
-      tl.set(next, { autoAlpha: 1 }, t + 0.4)
-      tl.fromTo(nextEls,
-        { autoAlpha: 0, y: 50 },
-        { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power2.out', stagger: 0.05 },
-        t + 0.42,
-      )
-      if (nextLine) tl.fromTo(nextLine,
-        { autoAlpha: 1, scaleX: 0 },
-        { scaleX: 1, duration: 0.5, ease: 'power2.out' },
-        t + 0.55,
-      )
+        tl.set(next, { autoAlpha: 1 }, t + 0.35)
+        tl.fromTo(nextEls,
+          { autoAlpha: 0, y: 30 },
+          { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power2.out', force3D: true },
+          t + 0.38,
+        )
+        if (nextLine) tl.set(nextLine, { autoAlpha: 1, scaleX: 1 }, t + 0.38)
+
+        // Mobile image transition
+        const oldImg = old.querySelector<HTMLElement>('.sl-mobile-img')
+        const nextImg = next.querySelector<HTMLElement>('.sl-mobile-img')
+        if (oldImg) tl.to(oldImg, { autoAlpha: 0, duration: 0.3, force3D: true }, t)
+        if (nextImg) tl.fromTo(nextImg, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, force3D: true }, t + 0.38)
+      } else {
+        tl.to(oldEls, {
+          autoAlpha: 0, y: -35,
+          duration: 0.42, ease: 'power2.in', stagger: 0.04,
+        }, t)
+        if (oldLine) tl.to(oldLine, { autoAlpha: 0, scaleX: 0, duration: 0.3, ease: 'power2.in' }, t)
+        tl.to(old, { autoAlpha: 0, duration: 0.15, ease: 'none' }, t + 0.4)
+
+        tl.set(next, { autoAlpha: 1 }, t + 0.4)
+        tl.fromTo(nextEls,
+          { autoAlpha: 0, y: 50 },
+          { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power2.out', stagger: 0.05 },
+          t + 0.42,
+        )
+        if (nextLine) tl.fromTo(nextLine,
+          { autoAlpha: 1, scaleX: 0 },
+          { scaleX: 1, duration: 0.5, ease: 'power2.out' },
+          t + 0.55,
+        )
+      }
 
       tl.to(canSpinState, {
         spinY: SLIDE_ANGLES[i + 1],
         duration: 0.9, ease: 'power2.inOut',
       }, t + 0.05)
 
-      const mobile = window.innerWidth < 768
       if (i + 1 === 1) {
-        tl.to(canAnimState, { zoom: mobile ? 2.6 : 2.4, offsetY: mobile ? -5 : -5, duration: 0.7, ease: 'power2.inOut' }, t + 0.25)
+        tl.to(canAnimState, { zoom: mobile ? 2.6 : 2.4, offsetY: -5, duration: 0.7, ease: 'power2.inOut' }, t + 0.25)
       } else if (i + 1 === 2) {
         tl.to(canAnimState, { levitate: 1, zoom: 1, offsetY: 0, duration: 0.55, ease: 'power2.out' }, t + 0.1)
       }
 
-      if (glowRef.current) {
+      if (!mobile && glowRef.current) {
         const opacity = 0.15 + (i + 1) * 0.08
         tl.to(glowRef.current, { opacity, duration: 0.6, ease: 'power1.inOut' }, t + 0.3)
       }
@@ -195,7 +218,7 @@ const ScrollShowcase = () => {
       {/* Ambient glow */}
       <div
         ref={glowRef}
-        className="absolute top-1/2 left-[30%] -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[100px] sm:blur-[140px] pointer-events-none"
+        className="absolute top-1/2 left-[30%] -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[40px] sm:blur-[100px] md:blur-[140px] pointer-events-none"
         style={{
           background: 'radial-gradient(circle, rgba(235,41,13,0.25) 0%, rgba(235,41,13,0.08) 50%, transparent 70%)',
           opacity: 0.15,
@@ -211,6 +234,17 @@ const ScrollShowcase = () => {
           className="absolute inset-0 pointer-events-none will-change-[transform,opacity]"
           style={{ zIndex: i + 1 }}
         >
+          {/* Mobile image */}
+          <div className="md:hidden absolute top-[20vh] left-1/2 -translate-x-1/2 z-0 pointer-events-none sl-mobile-img">
+            <Image
+              src={slide.mobileImage}
+              alt=""
+              width={slide.mobileImageW}
+              height={slide.mobileImageH}
+              className="h-[35vh] w-auto object-contain"
+            />
+          </div>
+
           {/* Text block — full width on mobile, right half on desktop */}
           <div className="absolute top-0 right-0 w-full md:w-1/2 lg:w-[42%] h-full flex items-end md:items-center px-5 sm:px-8 md:px-10 lg:px-14 pb-12 md:pb-0">
             <div className="w-full">

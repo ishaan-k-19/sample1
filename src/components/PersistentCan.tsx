@@ -1,10 +1,10 @@
 'use client'
 
-import { Suspense, useRef, useMemo } from 'react'
+import { Suspense, useRef, useMemo, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { Canvas, useFrame, useLoader, invalidate } from '@react-three/fiber'
 import { useGLTF, Center } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -12,7 +12,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 const CAN_MODEL_PATH = '/realistic_3d_beverage_can.glb'
 const LABEL_IMAGE = '/Screenshot 2026-03-31 at 2.34.37\u202fAM.png'
-
 const CAN_SCALE_Y  = 0.92
 const CAN_SCALE_XZ = 0.95
 
@@ -158,6 +157,7 @@ function getAutoScale(scene: THREE.Object3D, targetHeight = 4): number {
 
 export const canSpinState = { spinY: 0 }
 export const canAnimState = { levitate: 1, zoom: 1, offsetY: 0 }
+export const canVisibility = { visible: true }
 
 const CanModel = () => {
   const groupRef = useRef<THREE.Group>(null)
@@ -218,6 +218,7 @@ const CanModel = () => {
   const prevZoom = useRef(canAnimState.zoom)
 
   useFrame((state) => {
+    if (!canVisibility.visible) return
     if (groupRef.current) {
       const t = state.clock.getElapsedTime()
       const lev = canAnimState.levitate
@@ -230,6 +231,7 @@ const CanModel = () => {
       scaleGroupRef.current.scale.set(s * CAN_SCALE_XZ, s * CAN_SCALE_Y, s * CAN_SCALE_XZ)
       prevZoom.current = zoom
     }
+    invalidate()
   })
 
   return (
@@ -245,7 +247,35 @@ const CanModel = () => {
 
 useGLTF.preload(CAN_MODEL_PATH, 'https://www.gstatic.com/draco/versioned/decoders/1.5.7/')
 
-const PersistentCan = () => {
+/* ─── Mobile: no 3D canvas, just About snap logic ────────────────────────────── */
+
+const MobileCan = () => {
+  useGSAP(() => {
+    const about = document.getElementById('about')
+    if (about) {
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: about,
+          start: 'top top',
+          end: `+=${about.offsetHeight}`,
+          scrub: true,
+          snap: {
+            snapTo: 1,
+            duration: { min: 0.3, max: 0.6 },
+            delay: 0.1,
+            ease: 'power2.inOut',
+          },
+        },
+      }).to(about, { opacity: 1, duration: 1 })
+    }
+  })
+
+  return null
+}
+
+/* ─── Desktop: full 3D Canvas ────────────────────────────────────────────────── */
+
+const DesktopCan = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const canTransformRef = useRef<HTMLDivElement>(null)
   const slideOffsetRef = useRef<HTMLDivElement>(null)
@@ -260,8 +290,6 @@ const PersistentCan = () => {
     const hero = document.getElementById('hero')
     const showcase = document.getElementById('scroll-showcase')
     if (!hero || !showcase) return
-
-    const mobile = window.innerWidth < 768
 
     const heroH = hero.offsetHeight
     const numSlides = 3
@@ -289,7 +317,7 @@ const PersistentCan = () => {
         ease: 'power2.inOut',
       },
       onLeave: () => {
-        gsap.to(canAnimState, { levitate: 0, zoom: 1.65, offsetY: mobile ? -0.5 : 0, duration: 0.5, ease: 'power2.out' })
+        gsap.to(canAnimState, { levitate: 0, zoom: 1.65, offsetY: 0, duration: 0.5, ease: 'power2.out' })
       },
       onEnterBack: () => {
         gsap.to(canAnimState, { levitate: 1, zoom: 1, offsetY: 0, duration: 0.4, ease: 'power2.out' })
@@ -309,7 +337,7 @@ const PersistentCan = () => {
 
     const about = document.getElementById('about')
     if (about) {
-      const aboutTl = gsap.timeline({
+      gsap.timeline({
         scrollTrigger: {
           trigger: about,
           start: 'top top',
@@ -322,13 +350,10 @@ const PersistentCan = () => {
             ease: 'power2.inOut',
           },
         },
-      })
-      aboutTl.to(about, { opacity: 1, duration: 1 })
+      }).to(about, { opacity: 1, duration: 1 })
     }
 
-    const startX = mobile ? 0 : 200
-    const holdX = mobile ? 0 : -500
-    gsap.set(canTransform, { x: startX, y: 0, xPercent: -50, yPercent: -50 })
+    gsap.set(canTransform, { x: 200, y: 0, xPercent: -50, yPercent: -50 })
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -343,7 +368,7 @@ const PersistentCan = () => {
     const TL = 10
     const heroEnd = heroPct * TL
 
-    tl.to(canTransform, { x: holdX, y: 0, duration: heroEnd, ease: 'none' }, 0)
+    tl.to(canTransform, { x: -500, y: 0, duration: heroEnd, ease: 'none' }, 0)
 
     const slide1Offset = -(260 * Math.PI / 180)
     gsap.set(canSpinState, { spinY: slide1Offset - (2 * Math.PI) })
@@ -360,10 +385,20 @@ const PersistentCan = () => {
     const showcaseEnd = (heroPct + showcasePct) * TL
     const scrollAwayEnd = TL
 
-    tl.to(canTransform, { x: holdX, y: 0, duration: showcaseEnd - heroEnd, ease: 'none' }, heroEnd)
+    tl.to(canTransform, { x: -500, y: 0, duration: showcaseEnd - heroEnd, ease: 'none' }, heroEnd)
 
     tl.to(canTransform, { x: -window.innerWidth, duration: scrollAwayEnd - showcaseEnd, ease: 'power3.in' }, showcaseEnd)
-    tl.to(container, { opacity: 0, duration: scrollAwayEnd - showcaseEnd, ease: 'power3.in' }, showcaseEnd)
+    tl.to(container, { opacity: 0, duration: scrollAwayEnd - showcaseEnd, ease: 'power3.in',
+      onComplete: () => { canVisibility.visible = false },
+    }, showcaseEnd)
+
+    ScrollTrigger.create({
+      trigger: hero,
+      start: 'top bottom',
+      end: `+=${totalScroll}`,
+      onEnter: () => { canVisibility.visible = true; invalidate() },
+      onEnterBack: () => { canVisibility.visible = true; invalidate() },
+    })
 
     if (glow) {
       gsap.set(glow, { opacity: 0.2 })
@@ -377,38 +412,38 @@ const PersistentCan = () => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-x-0 bottom-0 pointer-events-none overflow-hidden z-40 md:z-[60] top-[90px] md:top-0"
+      className="fixed inset-x-0 bottom-0 pointer-events-none overflow-hidden z-[60] top-0"
       style={{ opacity: 0, visibility: 'visible' }}
       aria-hidden="true"
     >
       <div
         ref={canTransformRef}
-        className="absolute top-[26%] md:top-1/2 left-1/2 md:left-[63%] will-change-transform"
+        className="absolute top-1/2 left-[63%] will-change-transform"
       >
         <div ref={slideOffsetRef}>
           <div
             ref={glowRef}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] md:w-[400px] md:h-[400px] rounded-full blur-[32px] md:blur-[100px]"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[100px]"
             style={{
               background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(100,100,100,0.15) 50%, transparent 70%)',
               opacity: 0,
             }}
           />
 
-          <div className="relative z-10 w-[50vw] h-[40dvh] md:w-[450px] md:h-[650px]">
+          <div className="relative z-10 w-[450px] h-[650px]">
             <div className="w-full h-full">
               <Canvas
                 camera={{ position: [1, 0, 7], fov: 45 }}
-                dpr={1}
+                dpr={[1, 2]}
                 gl={{
                   alpha: true,
-                  antialias: false,
+                  antialias: true,
                   powerPreference: 'high-performance',
                   stencil: false,
                   depth: true,
                   toneMapping: THREE.NoToneMapping,
                 }}
-                frameloop="always"
+                frameloop="demand"
                 performance={{ min: 0.5 }}
                 style={{ background: 'transparent' }}
               >
@@ -426,6 +461,13 @@ const PersistentCan = () => {
       </div>
     </div>
   )
+}
+
+/* ─── Wrapper: picks mobile vs desktop ───────────────────────────────────────── */
+
+const PersistentCan = () => {
+  const [mobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768)
+  return mobile ? <MobileCan /> : <DesktopCan />
 }
 
 export default PersistentCan
